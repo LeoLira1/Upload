@@ -1,0 +1,19 @@
+# Banco local (gerado quando não há credenciais do Turso)
+camda_local.db
+camda_local.db-*
+*.db-shm
+*.db-wal
+
+# Segredos
+.streamlit/secrets.toml
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Planilhas de teste
+*.xlsx
+!docs/**/*.xlsx
