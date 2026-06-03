@@ -1,0 +1,90 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: stable
+          cache: true
+
+      - name: Gerar estrutura Android (boilerplate)
+        working-directory: flutter_app
+        run: |
+          flutter create \
+            --org com.camda \
+            --project-name camda_upload \
+            --platforms android \
+            . 2>&1
+          # Restaura nossos arquivos customizados (flutter create não sobrescreve, mas por segurança)
+          git checkout -- lib/ pubspec.yaml 2>/dev/null || true
+
+      - name: Instalar dependências
+        working-directory: flutter_app
+        run: flutter pub get
+
+      - name: Verificar análise de código
+        working-directory: flutter_app
+        run: flutter analyze --no-fatal-infos
+        continue-on-error: true
+
+      - name: Build APK (release)
+        working-directory: flutter_app
+        run: flutter build apk --release
+
+      - name: Upload APK como artefato do workflow
+        uses: actions/upload-artifact@v4
+        with:
+          name: camda-upload-v${{ github.run_number }}
+          path: flutter_app/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+
+      # Cria release apenas em push para main (não em PR)
+      - name: Criar GitHub Release com APK
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "CAMDA Upload v${{ github.run_number }}"
+          body: |
+            ## CAMDA Upload — APK Android
+
+            Gerado automaticamente em `${{ github.sha }}`.
+
+            ### Como instalar
+            1. Baixe o arquivo `camda-upload.apk` abaixo
+            2. No Android, acesse **Configurações → Segurança → Fontes desconhecidas** e habilite
+            3. Abra o APK baixado e instale
+            4. Ao abrir o app, toque em ⚙️ e configure a **URL do Turso** e o **Auth Token**
+
+            ### Funcionalidades
+            - 📈 **VENDAS** — envia planilha TOTVS BI (GRUPO DE PRODUTO, PRODUTO, QTDD - VENDIDA, QTDD ESTOQUE)
+            - 📦 **ESTOQUE PARCIAL** — atualiza apenas as quantidades da planilha (CÓDIGO, PRODUTO, QUANTIDADE)
+            - Sincroniza com o mesmo banco Turso do dashboard CAMDA
+          files: flutter_app/build/app/outputs/flutter-apk/app-release.apk
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
