@@ -86,7 +86,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             TextField(
               controller: _urlCtrl,
               style: const TextStyle(color: Colors.white),
-              decoration: _inputDec('URL do banco', 'libsql://...turso.io'),
+              decoration: _inputDec(
+                'URL do banco',
+                'libsql://meu-banco.turso.io  (ou https://...)',
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
