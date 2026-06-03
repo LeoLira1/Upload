@@ -6,7 +6,20 @@ class TursoService {
   final String url;
   final String token;
 
-  TursoService({required this.url, required this.token});
+  TursoService({required String url, required this.token})
+      : url = _normalizeUrl(url);
+
+  /// Converte libsql://... → https://... para a HTTP API do Turso
+  static String _normalizeUrl(String raw) {
+    final trimmed = raw.trim().replaceAll(RegExp(r'/$'), '');
+    if (trimmed.startsWith('libsql://')) {
+      return 'https://${trimmed.substring('libsql://'.length)}';
+    }
+    if (!trimmed.startsWith('http')) {
+      return 'https://$trimmed';
+    }
+    return trimmed;
+  }
 
   Map<String, dynamic> _arg(String type, String value) =>
       {'type': type, 'value': value};
