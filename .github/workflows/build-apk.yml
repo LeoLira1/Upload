@@ -63,9 +63,9 @@ jobs:
           path: flutter_app/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
 
-      # Cria release apenas em push para main (não em PR)
+      # Cria release em push para main ou para o branch padrão (não em PR)
       - name: Criar GitHub Release com APK
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/claude/streamlit-upload-app-Gv7en')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
