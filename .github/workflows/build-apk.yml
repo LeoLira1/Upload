@@ -2,9 +2,9 @@ name: Build Flutter APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, claude/streamlit-upload-app-Gv7en ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, claude/streamlit-upload-app-Gv7en ]
   workflow_dispatch:  # permite disparar manualmente pela aba Actions
 
 permissions:
