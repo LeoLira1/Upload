@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/product_record.dart';
@@ -260,7 +261,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?)
     return (true, successMsg);
   }
 
-  Future<bool> testConnection() async {
+  Future<(bool, String)> testConnection() async {
     try {
       final resp = await http.post(
         Uri.parse('$url/v2/pipeline'),
@@ -277,10 +278,13 @@ VALUES (?, ?, ?, ?, ?, ?, ?)
             {'type': 'close'}
           ]
         }),
-      );
-      return resp.statusCode >= 200 && resp.statusCode < 300;
-    } catch (_) {
-      return false;
+      ).timeout(const Duration(seconds: 15));
+      if (resp.statusCode >= 200 && resp.statusCode < 300) {
+        return (true, '');
+      }
+      return (false, 'HTTP ${resp.statusCode}: ${resp.body}');
+    } catch (e) {
+      return (false, '$e');
     }
   }
 
