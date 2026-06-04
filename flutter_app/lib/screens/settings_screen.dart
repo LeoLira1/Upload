@@ -51,10 +51,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _testResult = null;
     });
     final svc = TursoService(url: _urlCtrl.text.trim(), token: _tokenCtrl.text.trim());
-    final ok = await svc.testConnection();
+    final (ok, err) = await svc.testConnection();
     setState(() {
       _testing = false;
-      _testResult = ok ? '✅ Conexão bem-sucedida!' : '❌ Falha na conexão. Verifique URL e token.';
+      _testResult = ok ? '✅ Conexão bem-sucedida!' : '❌ Falha na conexão.\n$err';
     });
   }
 
