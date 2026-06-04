@@ -120,13 +120,12 @@ ON CONFLICT(codigo) DO UPDATE SET
       if (r.qtdVendida > 0) {
         stmts.add({
           'sql': '''
-INSERT INTO vendas_historico (codigo, produto, categoria, qtd_vendida, qtd_estoque, data_upload, criado_em)
-VALUES (?, ?, ?, ?, ?, ?, ?)
+INSERT INTO vendas_historico (codigo, produto, qtd_vendida, qtd_estoque, data_upload, criado_em)
+VALUES (?, ?, ?, ?, ?, ?)
 ''',
           'args': [
             _textArg(r.codigo),
             _textArg(r.produto),
-            _textArg(r.categoria),
             _intArg(r.qtdVendida),
             _intArg(r.qtdSistema),
             _textArg(dataRef),
