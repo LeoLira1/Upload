@@ -43,6 +43,14 @@ jobs:
           # Restaura nossos arquivos customizados (flutter create não sobrescreve, mas por segurança)
           git checkout -- lib/ pubspec.yaml 2>/dev/null || true
 
+      - name: Garantir permissões de rede no AndroidManifest
+        working-directory: flutter_app
+        run: |
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          if ! grep -q "android.permission.INTERNET" "$MANIFEST"; then
+            sed -i 's|<manifest|<manifest|; s|<application|<uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>\n    <application|' "$MANIFEST"
+          fi
+
       - name: Instalar dependências
         working-directory: flutter_app
         run: flutter pub get
